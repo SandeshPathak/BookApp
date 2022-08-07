@@ -1,13 +1,40 @@
 // app.js
-
 const express = require('express');
 const connectDB = require('./config/db');
 var cors = require('cors');
+require("dotenv").config()
+
+
+// Accessing the path module
+const path = require("path");
+
+// Step 1:
+app.use(express.static(path.resolve(__dirname, "./front-end/build")));
+// Step 2:
+app.get("*", function (request, response) {
+  response.sendFile(path.resolve(__dirname, "./front-end/build", "index.html"));
+});
+
+
 
 // routes
 const books = require('./routes/api/books');
 
 const app = express();
+
+const PORT = process.env.PORT || 5000;
+
+mongoose
+     .connect(
+         process.env.MONGODB_CONNECTION_STRING,
+             {
+               useNewUrlParser: true,
+               useUnifiedTopology: true,
+             }
+     )
+     .then(() => console.log("MongoDB has been connected"))
+     .catch((err) => console.log(err));
+
 
 // Connect Database
 connectDB();
@@ -23,6 +50,5 @@ app.get('/', (req, res) => res.send('Hello world!'));
 // use Routes
 app.use('/api/books', books);
 
-const port = process.env.PORT || 8082;
 
 app.listen(port, () => console.log(`Server running on port ${port}`));
